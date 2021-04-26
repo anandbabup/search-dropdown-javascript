@@ -9,6 +9,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
 
     // Create input element
     let search = document.createElement("input");
+    search.type = "text";
     search.id = "search"; // This is for the CSS
     search.autocomplete = "off"; // Disable browser autocomplete
     search.addEventListener("keyup", function () {
@@ -16,8 +17,10 @@ SearchList.prototype.init = function (dataSourceConfig) {
     });
     window.onload = function () {
         var elem = document.getElementById(dsConfig.domId);
-        elem.appendChild(search);
-        elem.classList.add('search-container');
+        if (elem) {
+            elem.appendChild(search);
+            elem.classList.add('search-container');
+        }
     }
     search.addEventListener('focus', function () {
         focusInput(this, dsConfig);
@@ -115,10 +118,12 @@ function detectClickOutside(domId) {
 
     //I'm using "click" but it works with any event
     document.addEventListener('click', function (event) {
-        var isClickInside = specifiedElement.contains(event.target);
+        if (specifiedElement) {
+            var isClickInside = specifiedElement.contains(event.target);
 
-        if (!isClickInside) {
-            removeDropdown(domId);
+            if (!isClickInside) {
+                removeDropdown(domId);
+            }
         }
     });
 }
