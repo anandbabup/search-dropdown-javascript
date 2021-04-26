@@ -1,4 +1,5 @@
 var list = new SearchList();
+var listPopup = new SearchListPopup();
 
 // const db = [
 //     { value: "03067", text: "Bake Rolls 100g" },
@@ -39,3 +40,4 @@ var color = [
 	}
 ]
 list.init({dataSource:color, valueField:"value", textField:"color", domId:'search-list'});
+listPopup.init({dataSource:color, valueField:"value", textField:"color", domId:'search-list-popup', containerId:'container-id'});
