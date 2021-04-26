@@ -9,17 +9,28 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
     var selectorId = `selector-${guid}`;
     var selectorContainerId = `selector-container-${guid}`;
 
-    // Create input element
-    let div = document.createElement("div");
-    div.id = selectorContainerId;
-    let search = document.createElement("input");
-    search.type = "text";
-    search.id = searchTextId; // This is for the CSS
-    search.autocomplete = "off"; // Disable browser autocomplete
-    search.addEventListener("keyup", function () {
-        searchDB(this, dsConfig, selectorId, selectorContainerId);
-    });
-    window.onload = function () {
+    createUI();
+
+    //attach click event
+    var targetElem = document.getElementById(dsConfig.domId);
+    if (targetElem) {
+        targetElem.addEventListener("click", function () {
+            createUI();
+        });
+    }
+
+    function createUI() {
+        // Create input element
+        let div = document.createElement("div");
+        div.id = selectorContainerId;
+        let search = document.createElement("input");
+        search.type = "text";
+        search.id = searchTextId; // This is for the CSS
+        search.autocomplete = "off"; // Disable browser autocomplete
+        search.addEventListener("keyup", function () {
+            searchDB(this, dsConfig, selectorId, selectorContainerId);
+        });
+
         var elem = document.getElementById(dsConfig.containerId);
         if (elem) {
             div.appendChild(search);
@@ -28,16 +39,9 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
             addListItems(search, dsConfig, selectorId, selectorContainerId);
 
             //register click outside event
-            detectClickOutside(dsConfig.containerId);
+            detectClickOutside(dsConfig.containerId, selectorContainerId);
         }
-    }
 
-    //attach click event
-    var targetElem = document.getElementById(dsConfig.domId);
-    if (targetElem) {
-        targetElem.addEventListener("click", function () {
-            showSelectorList(selectorContainerId);
-        });
     }
 
 
@@ -53,11 +57,12 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
             // If exists, create an item (button)
             createElement(selector, item, dsConfig, selectorContainerId);
         });
-
     }
 
     function createElement(selector, item, dsConfig, selectorContainerId) {
         var guid = Math.floor(1000 + Math.random() * 9000);
+
+        var searchText = document.getElementById(dsConfig.domId);
 
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
@@ -66,6 +71,11 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         });
         opt.setAttribute("value", item[dsConfig.valueField]);
         opt.innerHTML = item[dsConfig.textField];
+
+        if (item[dsConfig.valueField] == searchText.getAttribute('selected-item')) {
+            opt.classList.add('selected');
+        }
+
         selector.appendChild(opt);
     }
 
@@ -104,10 +114,10 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
     // Function to insert the selected item back to the input element
     function insertValue(elem, targetId, selectorContainerId) {
         let target = document.getElementById(targetId);
-        target.setAttribute("value", elem.innerHTML);
+        target.setAttribute("selected-item", elem.getAttribute('value'));
         target.innerText = elem.innerHTML;
         //target.value = elem.innerHTML;
-        hideSelectorList(selectorContainerId);
+        removeDropdown(target.parentNode.id, selectorContainerId);
     }
 
     function showSelectorList(selectorContainerId) {
@@ -117,16 +127,23 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         }
     }
 
-    function hideSelectorList(selectorContainerId) {
-        let container = document.getElementById(selectorContainerId);
-        if (container) {
-            container.style.display = "none";
-        }
+    // function hideSelectorList(selectorContainerId) {
+    //     let container = document.getElementById(selectorContainerId);
+    //     if (container) {
+    //         container.style.display = "none";
+    //     }
+    // }
+
+    function removeDropdown(parentDomId, selectorId) {
+        let searchList = document.getElementById(parentDomId);
+        let dropdown = document.getElementById(selectorId);
+        if (dropdown)
+            searchList.removeChild(dropdown);
     }
 
 
-    function detectClickOutside(domId, containerId) {
-        var specifiedElement = document.getElementById(domId);
+    function detectClickOutside(parentDomId, selectorContainerId) {
+        var specifiedElement = document.getElementById(parentDomId);
 
         //"click" but it works with any event
         document.addEventListener('click', function (event) {
@@ -134,7 +151,7 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
                 var isClickInside = specifiedElement.contains(event.target);
 
                 if (!isClickInside) {
-                    hideSelectorList(containerId);
+                    removeDropdown(parentDomId, selectorContainerId);
                 }
             }
         });

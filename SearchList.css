@@ -32,3 +32,9 @@ input {
 .search-container{
     width:200px;
 }
+.selected {
+    background: #F2F7FA;
+    border-left: 2px solid #00679A;
+    color: #00679A;
+    padding-left: 6px;
+}

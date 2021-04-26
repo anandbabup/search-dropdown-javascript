@@ -37,7 +37,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
     });
 
     //register click outside event
-    detectClickOutside(dsConfig.domId, selectorId);
+    detectClickOutside(dsConfig.domId, selectorId);   
 
     function focusInput(elem, dsConfig, selectorId, searchTextId) {
         var ds = dsConfig.dataSource;
@@ -65,6 +65,8 @@ SearchList.prototype.init = function (dataSourceConfig) {
     function createElement(selector, item, dsConfig, searchTextId) {
         var guid = Math.floor(1000 + Math.random() * 9000);
 
+        var searchText = document.getElementById(searchTextId);
+
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
         opt.addEventListener("click", function () {
@@ -72,12 +74,16 @@ SearchList.prototype.init = function (dataSourceConfig) {
         });
         opt.setAttribute("value", item[dsConfig.valueField]);
         opt.innerHTML = item[dsConfig.textField];
+
+        if(item[dsConfig.valueField] == searchText.getAttribute('selected-item')){
+            opt.classList.add('selected');
+        }        
         selector.appendChild(opt);
     }
 
 
     // Search function
-    function searchDB(elem, dsConfig,selectorId) {
+    function searchDB(elem, dsConfig, selectorId) {
         var ds = dsConfig.dataSource;
         let selector = document.getElementById(selectorId);
         // Check if input is empty
@@ -111,7 +117,8 @@ SearchList.prototype.init = function (dataSourceConfig) {
     // Function to insert the selected item back to the input element
     function insertValue(elem, searchTextId) {
         let search = document.getElementById(searchTextId);
-        search.value = elem.innerHTML;
+        search.value = elem.innerText;
+        search.setAttribute('selected-item',elem.getAttribute('value'));
         elem.parentNode.parentNode.removeChild(elem.parentNode);
     }
 
