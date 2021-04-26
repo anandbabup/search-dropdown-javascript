@@ -4,13 +4,17 @@ function SearchList() {
 SearchList.prototype.init = function (dataSourceConfig) {
     var dsConfig = dataSourceConfig || {};
 
+    var guid = Math.floor(1000 + Math.random() * 9000);
+    var searchTextId = `search-${guid}`;
+    var selectorId = `selector-${guid}`;
+
     //dom creation
     console.log("Initialized");
 
     // Create input element
     let search = document.createElement("input");
     search.type = "text";
-    search.id = "search"; // This is for the CSS
+    search.id = searchTextId; // This is for the CSS
     search.autocomplete = "off"; // Disable browser autocomplete
     search.addEventListener("keyup", function () {
         searchDB(this, dsConfig)
@@ -23,14 +27,14 @@ SearchList.prototype.init = function (dataSourceConfig) {
         }
     }
     search.addEventListener('focus', function () {
-        focusInput(this, dsConfig);
+        focusInput(this, dsConfig, selectorId ,searchTextId);
     });
 
     //register click outside event
-    detectClickOutside(dsConfig.domId);
+    detectClickOutside(dsConfig.domId ,selectorId);
 }
 
-function focusInput(elem, dsConfig) {
+function focusInput(elem, dsConfig, selectorId, searchTextId) {
     var ds = dsConfig.dataSource;
     console.log("Focus");
     let selector = document.getElementById("selector");
@@ -38,7 +42,8 @@ function focusInput(elem, dsConfig) {
     // If the selector div element does not exist, create it
     if (selector == null) {
         selector = document.createElement("ul");
-        selector.id = "selector";
+        selector.id = selectorId;
+        selector.classList.add('selector');
         elem.parentNode.appendChild(selector);
 
         // Position it below the input element
@@ -48,15 +53,18 @@ function focusInput(elem, dsConfig) {
 
         ds.forEach(function (item) {
             // If exists, create an item (button)
-            createElement(selector, item, dsConfig);
+            createElement(selector, item, dsConfig, searchTextId);
         });
     }
 }
 
-function createElement(selector, item, dsConfig) {
+function createElement(selector, item, dsConfig, searchTextId) {
+    var guid = Math.floor(1000 + Math.random() * 9000);
+
     let opt = document.createElement("li");
+    opt.id = `cb-${guid}`;
     opt.addEventListener("click", function () {
-        insertValue(this);
+        insertValue(this, searchTextId);
     });
     opt.setAttribute("value", item[dsConfig.valueField]);
     opt.innerHTML = item[dsConfig.textField];
@@ -98,22 +106,21 @@ function searchDB(elem, dsConfig) {
 }
 
 // Function to insert the selected item back to the input element
-function insertValue(elem) {
-    let search = document.getElementById("search");
-    search.classList.remove("dropdown");
+function insertValue(elem, searchTextId) {
+    let search = document.getElementById(searchTextId);
     search.value = elem.innerHTML;
     elem.parentNode.parentNode.removeChild(elem.parentNode);
 }
 
-function removeDropdown(parentDomId) {
+function removeDropdown(parentDomId,selectorId) {
     let searchList = document.getElementById(parentDomId);
-    let dropdown = document.getElementById('selector');
+    let dropdown = document.getElementById(selectorId);
     if (dropdown)
         searchList.removeChild(dropdown);
 }
 
 
-function detectClickOutside(domId) {
+function detectClickOutside(domId , selectorId) {
     var specifiedElement = document.getElementById(domId);
 
     //I'm using "click" but it works with any event
@@ -122,7 +129,7 @@ function detectClickOutside(domId) {
             var isClickInside = specifiedElement.contains(event.target);
 
             if (!isClickInside) {
-                removeDropdown(domId);
+                removeDropdown(domId, selectorId);
             }
         }
     });
