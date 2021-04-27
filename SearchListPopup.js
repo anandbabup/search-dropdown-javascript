@@ -3,19 +3,23 @@ function SearchListPopup() {
 
 SearchListPopup.prototype.init = function (dataSourceConfig) {
     var dsConfig = dataSourceConfig || {};
+    var isCreated = false;
 
     var guid = Math.floor(1000 + Math.random() * 9000);
     var searchTextId = `search-${guid}`;
     var selectorId = `selector-${guid}`;
     var selectorContainerId = `selector-container-${guid}`;
 
-    createUI();
+    //createUI();
 
     //attach click event
     var targetElem = document.getElementById(dsConfig.domId);
     if (targetElem) {
         targetElem.addEventListener("click", function () {
-            createUI();
+            if (!isCreated) {
+                createUI();
+                isCreated = true;
+            }
         });
     }
 
@@ -23,6 +27,7 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         // Create input element
         let div = document.createElement("div");
         div.id = selectorContainerId;
+        div.classList.add("control-container");
         let search = document.createElement("input");
         search.type = "text";
         search.id = searchTextId; // This is for the CSS
@@ -83,7 +88,7 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         selector.appendChild(opt);
         
         if(isScrolled){
-            opt.scrollIntoView();
+            opt.parentNode.scrollTop = opt.offsetTop;
             isScrolled = false;
         }
     }
@@ -129,25 +134,14 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         removeDropdown(target.parentNode.id, selectorContainerId);
     }
 
-    function showSelectorList(selectorContainerId) {
-        let container = document.getElementById(selectorContainerId);
-        if (container) {
-            container.style.display = "block";
-        }
-    }
-
-    // function hideSelectorList(selectorContainerId) {
-    //     let container = document.getElementById(selectorContainerId);
-    //     if (container) {
-    //         container.style.display = "none";
-    //     }
-    // }
 
     function removeDropdown(parentDomId, selectorId) {
         let searchList = document.getElementById(parentDomId);
         let dropdown = document.getElementById(selectorId);
-        if (dropdown)
+        if (dropdown) {
             searchList.removeChild(dropdown);
+            isCreated = false;
+        }
     }
 
 

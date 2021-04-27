@@ -39,5 +39,5 @@ var color = [
 		value: "#000"
 	}
 ]
-list.init({dataSource:color, valueField:"value", textField:"color", domId:'search-list'});
-listPopup.init({dataSource:color, valueField:"value", textField:"color", domId:'search-list-popup', containerId:'container-id'});
+list.init({dataSource:color, valueField:"value", textField:"color", domId:'search-list', placeholder:'Enter'});
+listPopup.init({dataSource:color, valueField:"value", textField:"color", placeholder:'Enter', domId:'search-list-popup', containerId:'container-id'});
