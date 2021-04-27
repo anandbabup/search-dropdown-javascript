@@ -14,6 +14,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
     // Create input element
     let search = document.createElement("input");
     search.type = "text";
+    search.placeholder = dsConfig.placeholder;
     search.id = searchTextId; // This is for the CSS
     search.autocomplete = "off"; // Disable browser autocomplete
     search.addEventListener("keyup", function () {
@@ -70,6 +71,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
 
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
+        opt.classList.add('li-items');
         opt.addEventListener("click", function () {
             insertValue(this, searchTextId);
         });

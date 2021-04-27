@@ -26,6 +26,7 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         let search = document.createElement("input");
         search.type = "text";
         search.id = searchTextId; // This is for the CSS
+        search.placeholder = dsConfig.placeholder;
         search.autocomplete = "off"; // Disable browser autocomplete
         search.addEventListener("keyup", function () {
             searchDB(this, dsConfig, selectorId, selectorContainerId);
@@ -67,6 +68,7 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
 
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
+        opt.classList.add('li-items');
         opt.addEventListener("click", function () {
             insertValue(this, dsConfig.domId, selectorContainerId);
         });

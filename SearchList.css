@@ -14,20 +14,15 @@
     background-color: white;
 }
 
-li:hover {
+.selector> li:hover {
     background: #F2F7FA;
     border-left: 2px solid #00679A;
     color: #00679A;
     padding-left: 6px;
 }
-li {
+.li-items {
     padding-left: 8px;
     border-left: 2px;
-}
-
-input {
-    width: 200px;
-    height: 20px;
 }
 .search-container{
     width:200px;
