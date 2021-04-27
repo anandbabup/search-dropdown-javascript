@@ -63,6 +63,7 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
         var guid = Math.floor(1000 + Math.random() * 9000);
 
         var searchText = document.getElementById(dsConfig.domId);
+        var isScrolled = false;
 
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
@@ -74,9 +75,15 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
 
         if (item[dsConfig.valueField] == searchText.getAttribute('selected-item')) {
             opt.classList.add('selected');
+            isScrolled = true;
         }
 
         selector.appendChild(opt);
+        
+        if(isScrolled){
+            opt.scrollIntoView();
+            isScrolled = false;
+        }
     }
 
 

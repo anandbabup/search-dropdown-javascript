@@ -66,6 +66,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
         var guid = Math.floor(1000 + Math.random() * 9000);
 
         var searchText = document.getElementById(searchTextId);
+        var isScrolled = false;
 
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
@@ -77,8 +78,15 @@ SearchList.prototype.init = function (dataSourceConfig) {
 
         if(item[dsConfig.valueField] == searchText.getAttribute('selected-item')){
             opt.classList.add('selected');
+            isScrolled = true;
         }        
         selector.appendChild(opt);
+
+        if(isScrolled){
+            opt.scrollIntoView();
+            isScrolled = false;
+        }
+
     }
 
 
@@ -127,7 +135,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
         let dropdown = document.getElementById(selectorId);
         if (dropdown)
             searchList.removeChild(dropdown);
-    }
+    }    
 
 
     function detectClickOutside(domId, selectorId) {
