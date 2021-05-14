@@ -1,10 +1,10 @@
 .selector {
-    width: 206px !important;
+    min-width: 206px;
     list-style: none;
     margin-top: 0;
     padding-left: 0;
     line-height: 22px;
-    height: 115px;
+    max-height: 168px;
     overflow-x: hidden;
     cursor: pointer;
     padding-top: 3px;
@@ -14,22 +14,84 @@
     background-color: white;
 }
 
-.selector> li:hover {
+.selector > li:hover {
     background: #F2F7FA;
     border-left: 2px solid #00679A;
     color: #00679A;
     padding-left: 6px;
 }
+
 .li-items {
     padding-left: 8px;
     border-left: 2px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top: 0.25px solid lightgrey;
+    
 }
-.search-container{
-    width:200px;
+
+.search-container {
+    width: 200px;
 }
+
 .selected {
     background: #F2F7FA;
     border-left: 2px solid #00679A;
     color: #00679A;
     padding-left: 6px;
+}
+
+.marginBottomZero{
+    margin-bottom:0 !important;
+}
+
+li > .circle {
+    height: 10px;
+    width: 10px;
+    background-color: red;
+    border-radius: 46%;
+    display: inline-block;
+    float: right;
+    margin-top: 5px;
+}
+
+/*custom style*/
+#site-search-dd > input {
+    background: transparent url('../../Images/arrow down.svg') no-repeat;
+    background-size: 10px;
+    background-color: white;
+    border-right: -2px;
+    background-position-x: 98%;
+    background-position-y: 50%;
+}
+
+#category-search-dd > input {
+    background: transparent url('../../Images/arrow down.svg') no-repeat;
+    background-size: 10px;
+    background-color: white;
+    border-right: -2px;
+    background-position-x: 98%;
+    background-position-y: 50%;
+}
+
+#calendarView > input {
+    background: transparent url('../../Images/arrow down.svg') no-repeat;
+    background-size: 10px;
+    background-color: white;
+    border-right: -2px;
+    background-position-x: 95%;
+    background-position-y: 50%;
+}
+
+#globe-time {
+    position: absolute;
+    right: 0;
+    top: -26px;
+    text-decoration: underline;
+    color: #00679A;
+    cursor: pointer;
+}
+#search-timezone-dd .selector {
+    width: 255px !important;
+    left: -49px;
 }

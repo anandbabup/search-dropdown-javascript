@@ -3,30 +3,28 @@ function SearchList() {
 
 SearchList.prototype.init = function (dataSourceConfig) {
     var dsConfig = dataSourceConfig || {};
+    //clear if child exist
+    clearChild(dsConfig.domId);
 
     var guid = Math.floor(1000 + Math.random() * 9000);
     var searchTextId = `search-${guid}`;
     var selectorId = `selector-${guid}`;
-
-    //dom creation
-    console.log("Initialized");
-
+    
     // Create input element
     let search = document.createElement("input");
     search.type = "text";
-    search.placeholder = dsConfig.placeholder;
+    if (dsConfig.defaultItem) {
+        search.value = dsConfig.defaultItem[dsConfig.textField];
+        search.setAttribute('selected-item', dsConfig.defaultItem[dsConfig.valueField]);
+    }
     search.id = searchTextId; // This is for the CSS
+    search.placeholder = dsConfig.placeholder;
     search.autocomplete = "off"; // Disable browser autocomplete
+    search.classList.add('marginBottomZero');
     search.addEventListener("keyup", function () {
         searchDB(this, dsConfig, selectorId)
     });
-    // window.onload = function () {
-    //     var elem = document.getElementById(dsConfig.domId);
-    //     if (elem) {
-    //         elem.appendChild(search);
-    //         elem.classList.add('search-container');
-    //     }
-    // }
+
     var elem = document.getElementById(dsConfig.domId);
     if (elem) {
         elem.appendChild(search);
@@ -38,7 +36,14 @@ SearchList.prototype.init = function (dataSourceConfig) {
     });
 
     //register click outside event
-    detectClickOutside(dsConfig.domId, selectorId);   
+    detectClickOutside(dsConfig.domId, selectorId);
+
+    function clearChild(id) {
+        var dom = document.getElementById(id);
+        while (dom.firstChild) {
+            dom.firstChild.remove()
+        }
+    }
 
     function focusInput(elem, dsConfig, selectorId, searchTextId) {
         var ds = dsConfig.dataSource;
@@ -50,11 +55,6 @@ SearchList.prototype.init = function (dataSourceConfig) {
             selector.id = selectorId;
             selector.classList.add('selector');
             elem.parentNode.appendChild(selector);
-
-            // // Position it below the input element
-            // selector.style.left = elem.getBoundingClientRect().left + "px";
-            // selector.style.top = elem.getBoundingClientRect().bottom + "px";
-            // selector.style.width = elem.getBoundingClientRect().width + "px";
 
             ds.forEach(function (item) {
                 // If exists, create an item (button)
@@ -73,24 +73,29 @@ SearchList.prototype.init = function (dataSourceConfig) {
         opt.id = `cb-${guid}`;
         opt.classList.add('li-items');
         opt.addEventListener("click", function () {
-            insertValue(this, searchTextId);
+            insertValue(this, searchTextId, dsConfig);
         });
         opt.setAttribute("value", item[dsConfig.valueField]);
         opt.innerHTML = item[dsConfig.textField];
 
-        if(item[dsConfig.valueField] == searchText.getAttribute('selected-item')){
+        if (item[dsConfig.valueField] == searchText.getAttribute('selected-item') || item[dsConfig.valueField] == dsConfig.defaultItemText) {
             opt.classList.add('selected');
             isScrolled = true;
-        }        
+        }
+       
         selector.appendChild(opt);
-
-        if(isScrolled){
-            opt.scrollIntoView();
-            isScrolled = false;
+        if (dsConfig.isColorEnabled) {
+            let div = document.createElement("div");
+            div.className = "circle-color";
+            div.style.backgroundColor = item.Color;
+            selector.appendChild(div);
         }
 
+        if (isScrolled) {
+            opt.parentNode.scrollTop = opt.offsetTop;
+            isScrolled = false;
+        }
     }
-
 
     // Search function
     function searchDB(elem, dsConfig, selectorId) {
@@ -125,11 +130,13 @@ SearchList.prototype.init = function (dataSourceConfig) {
     }
 
     // Function to insert the selected item back to the input element
-    function insertValue(elem, searchTextId) {
+    function insertValue(elem, searchTextId, config) {
         let search = document.getElementById(searchTextId);
         search.value = elem.innerText;
-        search.setAttribute('selected-item',elem.getAttribute('value'));
+        search.setAttribute('selected-item', elem.getAttribute('value'));
         elem.parentNode.parentNode.removeChild(elem.parentNode);
+        if (config.onValueChanged)
+            config.onValueChanged({ value: elem.getAttribute('value'), text: elem.innerText });
     }
 
     function removeDropdown(parentDomId, selectorId) {
@@ -137,7 +144,7 @@ SearchList.prototype.init = function (dataSourceConfig) {
         let dropdown = document.getElementById(selectorId);
         if (dropdown)
             searchList.removeChild(dropdown);
-    }    
+    }
 
 
     function detectClickOutside(domId, selectorId) {

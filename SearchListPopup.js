@@ -2,26 +2,37 @@ function SearchListPopup() {
 }
 
 SearchListPopup.prototype.init = function (dataSourceConfig) {
+
     var dsConfig = dataSourceConfig || {};
     var isCreated = false;
+
+    //clear listener of refid exist
+    var refElem = document.getElementById(dsConfig.refDomId);
+    
 
     var guid = Math.floor(1000 + Math.random() * 9000);
     var searchTextId = `search-${guid}`;
     var selectorId = `selector-${guid}`;
     var selectorContainerId = `selector-container-${guid}`;
 
-    //createUI();
-
-    //attach click event
-    var targetElem = document.getElementById(dsConfig.domId);
-    if (targetElem) {
-        targetElem.addEventListener("click", function () {
-            if (!isCreated) {
-                createUI();
-                isCreated = true;
-            }
-        });
+    var createUIlistener = function () {
+        if (!isCreated) {
+            createUI();
+            isCreated = true;
+        }
     }
+
+    //attach click event    
+    if (refElem) {
+        refElem.addEventListener("click", createUIlistener);
+    }    
+
+    //function clearChild(id) {
+    //    var dom = document.getElementById(id);
+    //    while (dom.firstChild) {
+    //        dom.firstChild.remove()
+    //    }
+    //}
 
     function createUI() {
         // Create input element
@@ -37,19 +48,17 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
             searchDB(this, dsConfig, selectorId, selectorContainerId);
         });
 
-        var elem = document.getElementById(dsConfig.containerId);
-        if (elem) {
+        var elem = document.getElementById(dsConfig.domId);
+        if (elem && elem.childElementCount == 0) {
             div.appendChild(search);
             elem.appendChild(div);
             elem.classList.add('search-container');
             addListItems(search, dsConfig, selectorId, selectorContainerId);
 
             //register click outside event
-            detectClickOutside(dsConfig.containerId, selectorContainerId);
+            detectClickOutside(dsConfig, selectorContainerId);
         }
-
     }
-
 
     function addListItems(elem, dsConfig, selectorId, selectorContainerId) {
         var ds = dsConfig.dataSource;
@@ -67,27 +76,26 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
 
     function createElement(selector, item, dsConfig, selectorContainerId) {
         var guid = Math.floor(1000 + Math.random() * 9000);
-
-        var searchText = document.getElementById(dsConfig.domId);
         var isScrolled = false;
 
         let opt = document.createElement("li");
         opt.id = `cb-${guid}`;
         opt.classList.add('li-items');
         opt.addEventListener("click", function () {
-            insertValue(this, dsConfig.domId, selectorContainerId);
+            insertValue(this, dsConfig, selectorContainerId);
         });
         opt.setAttribute("value", item[dsConfig.valueField]);
         opt.innerHTML = item[dsConfig.textField];
 
-        if (item[dsConfig.valueField] == searchText.getAttribute('selected-item')) {
+        var refElem = document.getElementById(dsConfig.refDomId);
+        if (item[dsConfig.valueField] == refElem.getAttribute('selected-item')) {
             opt.classList.add('selected');
             isScrolled = true;
         }
 
         selector.appendChild(opt);
-        
-        if(isScrolled){
+
+        if (isScrolled) {
             opt.parentNode.scrollTop = opt.offsetTop;
             isScrolled = false;
         }
@@ -126,12 +134,15 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
     }
 
     // Function to insert the selected item back to the input element
-    function insertValue(elem, targetId, selectorContainerId) {
-        let target = document.getElementById(targetId);
-        target.setAttribute("selected-item", elem.getAttribute('value'));
-        target.innerText = elem.innerHTML;
-        //target.value = elem.innerHTML;
-        removeDropdown(target.parentNode.id, selectorContainerId);
+    function insertValue(elem, config, selectorContainerId) {
+        if (config.onValueChanged)
+            config.onValueChanged({ value: elem.getAttribute('value'), text: elem.innerHTML });
+        console.log(`${elem.getAttribute('value')} - ${elem.innerHTML}`);
+
+        // target.setAttribute("selected-item", elem.getAttribute('value'));
+        // target.innerText = elem.innerHTML;
+
+        removeDropdown(config.domId, selectorContainerId);
     }
 
 
@@ -145,16 +156,26 @@ SearchListPopup.prototype.init = function (dataSourceConfig) {
     }
 
 
-    function detectClickOutside(parentDomId, selectorContainerId) {
-        var specifiedElement = document.getElementById(parentDomId);
+    function detectClickOutside(config, selectorContainerId) {
+        var specifiedElement = document.getElementById(config.domId);
 
         //"click" but it works with any event
         document.addEventListener('click', function (event) {
             if (specifiedElement) {
+                //check inside container clicked
                 var isClickInside = specifiedElement.contains(event.target);
 
+                //check whether reference dom clicked
                 if (!isClickInside) {
-                    removeDropdown(parentDomId, selectorContainerId);
+                    var el = document.getElementById(config.refDomId);
+                    if (el == event.target) {
+                        isClickInside = true;
+                    }
+                }
+
+                //remove if clicked outside
+                if (!isClickInside) {
+                    removeDropdown(config.domId, selectorContainerId);
                 }
             }
         });
